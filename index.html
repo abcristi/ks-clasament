@@ -158,6 +158,17 @@ function render(){
   }
 })();
 setInterval(refresh,60000);
+
+// auto-height pentru embed (postMessage catre pagina gazda)
+if(window.parent!==window){
+  var postH=function(){
+    var hh=Math.max(document.body.scrollHeight,document.documentElement.scrollHeight,560);
+    window.parent.postMessage({ksHeight:hh},'*');
+  };
+  if(window.ResizeObserver){new ResizeObserver(postH).observe(document.body);}
+  window.addEventListener('load',postH);
+  setInterval(postH,2000);
+}
 </script>
 </body>
 </html>
