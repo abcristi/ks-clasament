@@ -35,7 +35,6 @@
   .pos{color:#1e7d34}.neg{color:#c0392b}
   #err{display:none;text-align:center;color:#c0392b;padding:30px 10px}
   footer{text-align:center;font-size:.68rem;color:#94a0ad;margin-top:22px;line-height:1.5;padding:0 8px}
-  /* lock screen */
   #lock{position:fixed;inset:0;background:linear-gradient(135deg,#1F4E79,#2a6099);display:flex;align-items:center;justify-content:center;z-index:10;padding:20px}
   .lockbox{background:#fff;border-radius:16px;padding:28px 22px;max-width:340px;width:100%;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.25)}
   .lockbox .ic{font-size:2rem}
@@ -54,7 +53,7 @@
     <h2>Concurs Zokura</h2>
     <p>Introdu parola primită de la echipa KitchenShop</p>
     <input type="password" id="pw" placeholder="Parola" autocomplete="current-password">
-    <button onclick="unlock()">Vezi clasamentul</button>
+    <button id="btn" type="button">Vezi clasamentul</button>
     <div id="lockerr">Parolă greșită. Încearcă din nou.</div>
   </div>
 </div>
@@ -68,7 +67,7 @@
 
 <div class="wrap">
   <div class="banner" id="banner" style="display:none"></div>
-  <div class="prize" id="prize">🎁 Premii (voucher / angajat): 🥇 <b>600 lei</b> · 🥈 <b>400 lei</b> · 🥉 <b>200 lei</b></div>
+  <div class="prize" id="prize"></div>
   <div class="podium" id="podium"></div>
   <div id="list"></div>
   <div id="err">Nu am putut încărca datele. Reîncearcă în câteva minute.</div>
@@ -111,7 +110,8 @@ async function unlock(){
     document.getElementById('lockerr').style.display='block';
   }
 }
-document.getElementById('pw').addEventListener('keydown',e=>{if(e.key==='Enter')unlock();});
+document.getElementById('btn').addEventListener('click',unlock);
+document.getElementById('pw').addEventListener('keydown',function(e){if(e.key==='Enter')unlock();});
 
 async function refresh(){
   if(!PW) return;
@@ -123,4 +123,41 @@ function render(){
   document.getElementById('title').textContent=DATA.contest;
   document.getElementById('upd').textContent=DATA.updated_at;
   const bn=document.getElementById('banner');
-  if(DATA.banner){bn.style.display='block';bn.textContent='�
+  if(DATA.banner){bn.style.display='block';bn.textContent='⚠️ '+DATA.banner;}else{bn.style.display='none';}
+  const pz=DATA.prizes||[600,400,200];
+  document.getElementById('prize').innerHTML='🎁 Premii (voucher / angajat): 🥇 <b>'+pz[0]+' lei</b> · 🥈 <b>'+pz[1]+' lei</b> · 🥉 <b>'+pz[2]+' lei</b>';
+
+  const data=DATA.stores.map(function(s){return Object.assign({},s,{p:s.target>0?(s.actual-s.target)/s.target*100:null});})
+                        .sort(function(a,b){return b.p-a.p;});
+
+  const med=['🥇 Locul 1','🥈 Locul 2','🥉 Locul 3'], cls=['c1','c2','c3'], ico=['🥇','🥈','🥉'];
+  document.getElementById('podium').innerHTML=data.slice(0,3).map(function(x,i){
+    return '<div class="card '+cls[i]+'"><div class="medal">'+med[i]+' · '+pz[i]+' lei/angajat</div>'+
+      '<div class="cname">'+x.short+'</div><div class="cbig">'+(x.p===null?'–':pct(x.p))+'</div>'+
+      '<div class="cmeta">țintă '+fmt(x.target)+'<br>realizat '+fmt(x.actual)+'</div></div>';
+  }).join('');
+
+  document.getElementById('list').innerHTML=data.map(function(x,i){
+    return '<div class="row '+(i<3?'win':'')+'"><div class="rank">'+(i<3?ico[i]:i+1)+'</div>'+
+      '<div class="info"><div class="n">'+x.short+'</div>'+
+      '<div class="d">țintă '+fmt(x.target)+' lei · realizat '+(x.actual?fmt(x.actual)+' lei':'–')+'</div></div>'+
+      '<div class="pct '+(x.p>=0?'pos':'neg')+'">'+(x.p===null?'–':pct(x.p))+'</div></div>';
+  }).join('');
+}
+
+(async function(){
+  let saved=null;
+  try{saved=localStorage.getItem('ks_pw');}catch(e){}
+  if(saved){
+    try{
+      DATA=await load(saved); PW=saved;
+      document.getElementById('lock').style.display='none';
+      document.getElementById('app').style.display='block';
+      render();
+    }catch(e){try{localStorage.removeItem('ks_pw');}catch(x){}}
+  }
+})();
+setInterval(refresh,60000);
+</script>
+</body>
+</html>
