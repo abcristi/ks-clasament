@@ -61,7 +61,7 @@
 <div id="app">
 <header>
   <h1>🏆 <span id="title">Concurs Zokura</span></h1>
-  <div class="sub">Fiecare magazin are <b>țintă proprie</b> (Zokura aug 2025 × creșterea organică). Câștigă cine își <b>depășește ținta cu cel mai mare procent</b>. Valori nete, fără TVA.</div>
+  <div class="sub">Fiecare magazin are <b>țintă proprie</b> (Zokura aug 2025 × creșterea organică). Câștigă cine își <b>depășește ținta cu cel mai mare procent</b>. Valori cu TVA incluse.</div>
   <div class="upd">Actualizat: <span id="upd">—</span></div>
 </header>
 
@@ -71,13 +71,14 @@
   <div class="podium" id="podium"></div>
   <div id="list"></div>
   <div id="err">Nu am putut încărca datele. Reîncearcă în câteva minute.</div>
-  <footer>Ținta = Zokura aug 2025 × (1 + creșterea organică ian–iun 2026, doar dacă e pozitivă). Plaza (deschis mai 2026): țintă sintetică. KitchenShop · uz intern · pagina se actualizează automat.</footer>
+  <footer>Ținta = Zokura aug 2025 × (1 + creșterea organică ian–iun 2026, doar dacă e pozitivă). Plaza (deschis mai 2026): țintă sintetică. Sumele afișate includ TVA (21%). KitchenShop · uz intern · pagina se actualizează automat.</footer>
 </div>
 </div>
 
 <script>
 let DATA=null, PW=null;
 const fmt=n=>Math.round(n).toLocaleString('ro-RO');
+const VAT=1.21;
 const pct=p=>(p>=0?'+':'')+p.toFixed(1)+'%';
 const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 
@@ -134,13 +135,13 @@ function render(){
   document.getElementById('podium').innerHTML=data.slice(0,3).map(function(x,i){
     return '<div class="card '+cls[i]+'"><div class="medal">'+med[i]+' · '+pz[i]+' lei/angajat</div>'+
       '<div class="cname">'+x.short+'</div><div class="cbig">'+(x.p===null?'–':pct(x.p))+'</div>'+
-      '<div class="cmeta">țintă '+fmt(x.target)+'<br>realizat '+fmt(x.actual)+'</div></div>';
+      '<div class="cmeta">țintă '+fmt(x.target*VAT)+'<br>realizat '+fmt(x.actual*VAT)+'</div></div>';
   }).join('');
 
   document.getElementById('list').innerHTML=data.map(function(x,i){
     return '<div class="row '+(i<3?'win':'')+'"><div class="rank">'+(i<3?ico[i]:i+1)+'</div>'+
       '<div class="info"><div class="n">'+x.short+'</div>'+
-      '<div class="d">țintă '+fmt(x.target)+' lei · realizat '+(x.actual?fmt(x.actual)+' lei':'–')+'</div></div>'+
+      '<div class="d">țintă '+fmt(x.target*VAT)+' lei · realizat '+(x.actual?fmt(x.actual*VAT)+' lei':'–')+'</div></div>'+
       '<div class="pct '+(x.p>=0?'pos':'neg')+'">'+(x.p===null?'–':pct(x.p))+'</div></div>';
   }).join('');
 }
