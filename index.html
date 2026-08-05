@@ -139,7 +139,7 @@ function render(){
   const med=['🥇 Locul 1','🥈 Locul 2','🥉 Locul 3'], cls=['c1','c2','c3'], ico=['🥇','🥈','🥉'];
   document.getElementById('podium').innerHTML=data.slice(0,3).map(function(x,i){
     return '<div class="card '+cls[i]+'"><div class="medal">'+med[i]+' · '+pz[i]+' lei/angajat</div>'+
-      '<div class="cname">'+x.short+'</div><div class="cbig">'+(x.pr===null?'–':Math.round(x.pr)+'%')+'</div>'+
+      '<div class="cname">'+x.short+'</div><div class="cbig">'+(x.pr===null?'–':x.pr.toFixed(1).replace('.',',')+'%')+'</div>'+
       '<div class="pbar"><i style="width:'+Math.min(100,x.pr||0)+'%"></i></div>'+
       '<div class="cmeta">țintă '+fmt(Math.ceil(x.target*VAT/100)*100)+'<br>realizat '+fmt(x.actual*VAT)+'</div></div>';
   }).join('');
@@ -149,7 +149,7 @@ function render(){
       '<div class="info"><div class="n">'+x.short+'</div>'+
       '<div class="d">țintă '+fmt(Math.ceil(x.target*VAT/100)*100)+' lei · realizat '+(x.actual?fmt(x.actual*VAT)+' lei':'–')+'</div>'+
       '<div class="bar"><i class="'+((x.pr||0)>=100?'full':'')+'" style="width:'+Math.min(100,x.pr||0)+'%"></i></div></div>'+
-      '<div class="pct '+((x.pr||0)>=100?'pos':'')+'">'+(x.pr===null?'–':Math.round(x.pr)+'%')+'</div></div>';
+      '<div class="pct '+((x.pr||0)>=100?'pos':'')+'">'+(x.pr===null?'–':x.pr.toFixed(1).replace('.',',')+'%')+'</div></div>';
   }).join('');
 }
 
